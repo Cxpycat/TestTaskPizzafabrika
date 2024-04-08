@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: pizzafabrika_db
+      DB_USER: nikita
+      DB_PASSWORD: qwerty
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 8876:80
+    volumes:
+      - ./:/var/www/html
+      - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: pizzafabrika_db
+      MYSQL_USER: nikita
+      MYSQL_PASSWORD: qwerty
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8101:3306
